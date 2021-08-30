@@ -1,5 +1,6 @@
 const { removeAppClipAttrs, renameDataColor, migrateSegmentStyles } = require("./plugins")
 
+// All of these work on App Clip codes without making visual differences, for the most part.
 const builtInPlugins = [
     "removeDoctype",
     "removeXMLProcInst",
@@ -44,6 +45,7 @@ const plugins = [
     renameDataColor,
     migrateSegmentStyles
 ].concat(builtInPlugins.map((name) => {
+    // convertPathData needs a higher precision to avoid offsetting the centre image.
     const floatPrecision = name == "convertPathData" ? 2 : 1;
     return { name, params: { floatPrecision } }
 }));

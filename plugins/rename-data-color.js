@@ -1,3 +1,7 @@
+//
+// To save a tiny bit more space, rename 'data-color' to 'c' on the ridges.
+//
+
 exports.name = 'renameDataColor';
 exports.type = "visitor";
 

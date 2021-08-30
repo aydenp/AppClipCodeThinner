@@ -1,3 +1,13 @@
+//
+// The App Clip generator is a bit inefficient, and attaches an inline style attribute
+// to every node making up the 'ridges' of the code, despite them all being the same.
+//
+// This plugin simply grabs those styles and puts them in an inline CSS node at the top,
+// and then removes the style attribute from each of the ridges.
+//
+// This accounts for the majority of the savings.
+//
+
 const JSAPI = require('svgo/lib/svgo/jsAPI.js');
 
 exports.name = 'migrateSegmentStyles';
@@ -14,17 +24,22 @@ const createStyleNode = (text) => {
 }
 
 exports.fn = (root, params, extra) => {
+    // We only ever want to run one pass
     if (extra.multipassCount && extra.multipassCount > 0) return {};
-    const svgElem = root.querySelector("svg");
+    // Get the root <svg> element
+    const svgNode = root.querySelector("svg");
 
-    const firstColorElem = root.querySelector("[c='0']"), secondColorElem = root.querySelector("[c='1']");
+    // Grab the first 'ridge' node of each colour
+    const firstColourNode = svgNode.querySelector("[c='0']"), secondColourNode = svgNode.querySelector("[c='1']");
 
-    const styleNode = createStyleNode(`[c="0"]{${firstColorElem.attributes.style}}[c="1"]{${secondColorElem.attributes.style}}`);
-    svgElem.children.push(styleNode);
+    // Add an inline <style> node with the CSS of those nodes
+    const styleNode = createStyleNode(`[c="0"]{${firstColourNode.attributes.style}}[c="1"]{${secondColourNode.attributes.style}}`);
+    svgNode.children.push(styleNode);
 
     return {
         element: {
             enter: (node) => {
+                // Finally, remove the inline style attribute from all the ridges
                 if (node.attributes && node.attributes.c) delete node.attributes.style;
             }
         }
